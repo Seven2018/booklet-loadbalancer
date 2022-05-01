@@ -1,0 +1,14 @@
+version: "3"
+services:
+  loadbalancer:
+    image: nginx:stable
+    volumes:
+      - "./nginx.conf.template:/etc/nginx/templates/nginx.conf.template"
+    ports:
+      - "80:80"
+    environment:
+      - NGINX_HOST=booklet.localhost
+      - NGINX_PORT=80
+    depends_on:
+      - nuxt
+      - rails
