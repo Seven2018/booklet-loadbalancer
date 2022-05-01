@@ -8,12 +8,15 @@ services:
       - "80:80"
     environment:
       - NGINX_HOST=booklet.localhost
+      - NGINX_RAILS_HOST=${NGINX_PROXY_RAILS:-rails}
       - NGINX_PORT=80
     depends_on:
       - nuxt
-      - rails
+#      - rails
     networks:
       - seven_booklet
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
 
 networks:

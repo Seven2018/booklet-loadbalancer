@@ -10,6 +10,39 @@ print_c() {
 check_requirement() {
   if ! command -v docker &>/dev/null || ! command -v docker-compose &>/dev/null; then
     print_c $Red "Error: docker and docker-compose need to be installed"
+    if [[ $OSTYPE == 'darwin'* ]]; then
+      exit 1
+    fi
+
+    read -p "Do you want to install them ? (y/n) " yn
+    case $yn in
+    y | yes)
+      print_c $Yellow "installing docker..."
+      sudo apt-get update
+      sudo apt-get install -y ca-certificates curl gnupg lsb-release
+      curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+      echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list >/dev/null
+      sudo apt-get update
+      sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
+
+      print_c $Yellow "installing docker-compose..."
+      sudo curl -L "https://github.com/docker/compose/releases/download/1.26.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+      sudo chmod +x /usr/local/bin/docker-compose
+
+      print_c $Yellow "runnig docker without sudo, need a restart..."
+      sudo groupadd docker
+      sudo usermod -aG docker $USER
+      newgrp docker
+      ;;
+    n | no)
+      print_c $Yellow "exiting...come back when it will be installed"
+      exit 1
+      ;;
+    *)
+      echo invalid response
+      exit 1
+      ;;
+    esac
     exit 1
   fi
 }
@@ -19,6 +52,18 @@ check_hosts() {
   if [[ $? -eq 1 ]]; then
     print_c $Yellow "Adding host http://booklet.localhost"
     echo -e '\n127.0.0.1 booklet.localhost' | sudo tee -a /etc/hosts &>/dev/null
+  fi
+}
+
+check_services() {
+  sudo service postgresql status
+  if [[ $? -eq 0 ]]; then
+    sudo service postgresql stop
+  fi
+  # TODO: test on a machine
+  sudo service redis status
+  if [[ $? -eq 0 ]]; then
+    sudo service redis stop
   fi
 }
 
@@ -34,9 +79,21 @@ print_seven() {
 start() {
   check_requirement
   check_hosts
+  check_services
   print_seven
   #  echo "starting... opt, WITHOUT_LOGS: $1, WITHOUT_RAILS: $2"
-  docker-compose -f docker-compose.yml -f ./booklet-front/docker-compose.yml -f ./booklet.byseven.co/docker-compose.yml -f ./docker-compose.override-booklet-img.yml up -d
+  if [[ $2 -eq 1 ]]; then
+    sudo lsof -i -P -n | grep LISTEN | grep ':3000'
+    if [[ $? -eq 1 ]]; then
+      print_c $Red "Error: please run your rails environment before"
+      print_c $Yellow "DO NOT FORGET TO RUN RAILS WITH '-b 0.0.0.0' option"
+      print_c $Yellow "EXAMPLE: bundle exec rails s -b 0.0.0.0"
+      exit 1
+    fi
+    NGINX_PROXY_RAILS=host.docker.internal docker-compose -f docker-compose.yml -f ./booklet-front/docker-compose.yml -f ./booklet.byseven.co/docker-compose.yml -f ./docker-compose.override-booklet-img.yml up -d db redis webpack sidekiq nuxt loadbalancer
+  else
+    docker-compose -f docker-compose.yml -f ./booklet-front/docker-compose.yml -f ./booklet.byseven.co/docker-compose.yml -f ./docker-compose.override-booklet-img.yml up -d
+  fi
 
   print_c $Yellow "Booklet ready on: http://booklet.locahost"
   print_c $Yellow "Opening..."
