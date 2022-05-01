@@ -1,0 +1,3 @@
+[submodule "booklet.byseven.co"]
+	path = booklet.byseven.co
+	url = git@github.com:Seven2018/booklet.byseven.co.git

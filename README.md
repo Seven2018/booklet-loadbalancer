@@ -3,7 +3,11 @@
 * [docker](https://docs.docker.com/get-docker/)
 * [docker-compose](https://docs.docker.com/compose/install/)
 
-## RUN
+## Clone
+```shell
+> git clone --recurse-submodules -j8 git@github.com:harold93/booklet-loadbalancer.git
+```
+## Run
 ```shell
 > booklet.sh
 ```
