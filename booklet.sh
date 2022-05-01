@@ -36,14 +36,13 @@ start() {
   check_hosts
   print_seven
   #  echo "starting... opt, WITHOUT_LOGS: $1, WITHOUT_RAILS: $2"
-  docker-compose -f docker-compose.yml -f booklet-front/docker-compose.yml up
+  docker-compose -f docker-compose.yml -f ./booklet-front/docker-compose.yml -f ./booklet.byseven.co/docker-compose.yml -f ./docker-compose.override-booklet-img.yml up -d
 
   print_c $Yellow "Booklet ready on: http://booklet.locahost"
   print_c $Yellow "Opening..."
   if [[ $OSTYPE == 'darwin'* ]]; then
     open http://booklet.localhost
   else
-    xdg-open http://booklet.localhost &
     setsid xdg-open http://booklet.localhost &>/dev/null
   fi
 }

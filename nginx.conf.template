@@ -3,7 +3,9 @@ server {
         server_name ${NGINX_HOST};
 
         location ~* / {
-            root /usr/share/nginx/html;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_pass http://rails:3000;
         }
 
         location ^~ /objectif {

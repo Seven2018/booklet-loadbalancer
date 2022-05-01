@@ -12,3 +12,10 @@ services:
     depends_on:
       - nuxt
       - rails
+    networks:
+      - seven_booklet
+
+
+networks:
+  seven_booklet:
+    driver: bridge
