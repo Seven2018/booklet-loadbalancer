@@ -105,15 +105,26 @@ start() {
   fi
 }
 
+alias_docker() {
+  local args=("$@")
+
+  shift
+  if [[ ${args[0]} -eq 1 ]]; then
+    NGINX_PROXY_RAILS=host.docker.internal docker-compose -f docker-compose.yml -f ./booklet-front/docker-compose.yml -f ./booklet.byseven.co/docker-compose.yml -f ./docker-compose.override-booklet-img.yml "$@"
+  else
+    docker-compose -f docker-compose.yml -f ./booklet-front/docker-compose.yml -f ./booklet.byseven.co/docker-compose.yml -f ./docker-compose.override-booklet-img.yml "$@"
+  fi
+}
+
 help() {
   echo "$0:"
   echo -e "\t-h | --help:\t\tlist of options"
   echo -e "\t-l | --logs:\t\trun docker with logs"
   echo -e "\t-wr | --without-rails:\trun the project without rails"
+  echo -e "\t-d | --docker:\talias for docker project at seven ex: ./sevenup -d exec rails rails c"
 }
 
 main() {
-  #  print_c ${Red} "$1"
   local WITH_LOGS=0
   local WITHOUT_RAILS=0
 
@@ -130,6 +141,11 @@ main() {
         WITHOUT_RAILS=1
         shift
         ;;
+      -d | --docker)
+        shift
+        alias_docker $WITHOUT_RAILS "$@"
+        exit 0
+      ;;
       -h | --help)
         help
         exit 0

@@ -21,4 +21,8 @@ services:
       volumes:
         - "./booklet.byseven.co:/app"
         - "/app/tmp"
+    
+    nuxt:
+      volumes:
+        - "./booklet-front:/app"
 
