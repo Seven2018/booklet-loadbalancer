@@ -97,6 +97,7 @@ start() {
 
   print_c $Yellow "Booklet ready on: http://booklet.locahost"
   print_c $Yellow "Opening..."
+  print_c $Yellow "wait at least 5 minutes then reload"
   if [[ $OSTYPE == 'darwin'* ]]; then
     open http://booklet.localhost
   else
