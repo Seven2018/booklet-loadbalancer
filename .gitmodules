@@ -3,4 +3,4 @@
 	url = git@github.com:Seven2018/booklet.byseven.co.git
 [submodule "booklet-front"]
 	path = booklet-front
-	url = git@github.com:harold93/booklet-front.git
+	url = git@github.com:Seven2018/booklet-front.git
