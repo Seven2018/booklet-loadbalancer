@@ -8,7 +8,7 @@ server {
             proxy_pass http://${NGINX_RAILS_HOST}:3000;
         }
 
-        location ^~ /objectif {
+        location ^~ /objectives {
             proxy_set_header Host $host;
             proxy_set_header X-Real-IP $remote_addr;
             proxy_pass http://nuxt:3000;
